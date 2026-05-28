@@ -27,6 +27,7 @@ jobs:
           repository: nitishok/ai-coding-agents-vault
           token: ${{ secrets.VAULT_TOKEN }}
           path: vault
+          ref: HEAD
 
       - name: Set up Python
         uses: actions/setup-python@v5
