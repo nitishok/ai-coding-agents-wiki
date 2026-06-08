@@ -308,7 +308,7 @@ def page_template(title, content, all_categories, current_slug=None):
     tools_links = ""
     if current_slug:
         tools_links = f'<li><a href="{BASE_PATH}/backlinks/{current_slug}.html">What links here</a></li>'
-    tools_links += '<li><a href="{BASE_PATH}/articles/index.html">All articles</a></li>'
+    tools_links += f'<li><a href="{BASE_PATH}/articles/index.html">All articles</a></li>'
 
     sidebar = f'''<nav class="wiki-sidebar">
 <h3>Navigation</h3>
