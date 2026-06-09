@@ -49,12 +49,17 @@ TOPIC_PORTALS = [
      "tags": {"context-engineering", "context-windows", "memory", "prompting", "rag"}},
     {"id": "agentic-coding", "title": "Agentic Coding",
      "tags": {"agentic-coding", "patterns", "workflow", "workflows", "vibe-coding",
-              "autonomy", "orchestration", "architecture", "multi-agent"}},
+              "autonomy", "orchestration", "multi-agent"}},
+    {"id": "harness-engineering", "title": "Harness Engineering",
+     "tags": {"harness", "scaffolding", "agent-design", "hooks", "long-running"}},
     {"id": "evals", "title": "Evals &amp; Quality",
-     "tags": {"evals", "testing", "code-quality", "quality", "production",
-              "safeguards", "ai-readiness"}},
+     "tags": {"evals", "testing", "code-quality", "quality", "benchmarks",
+              "safeguards", "ai-readiness", "empirical"}},
     {"id": "sdd", "title": "Spec-Driven Dev",
      "tags": {"sdd", "spec-driven-development", "spec-driven", "planning"}},
+    {"id": "enterprise", "title": "Enterprise &amp; Regulated",
+     "tags": {"enterprise", "regulated", "gxp", "validation", "compliance",
+              "production", "landscape", "comparison"}},
 ]
 CURATED_TYPES = {'concept', 'paper', 'tool', 'mental-model', 'note'}
 TYPE_ORDER = {'concept': 0, 'paper': 1, 'tool': 2, 'mental-model': 3, 'note': 4}
