@@ -43,6 +43,22 @@ SKIP_NAMES = {"CLAUDE.md", "Untitled.md"}
 # Files that are meta/index — include but mark as such
 META_FILES = {"_index.md", "_summaries.md"}
 
+# Topic portals — shared by main page and topic pages
+TOPIC_PORTALS = [
+    {"id": "context-engineering", "title": "Context Engineering",
+     "tags": {"context-engineering", "context-windows", "memory", "prompting", "rag"}},
+    {"id": "agentic-coding", "title": "Agentic Coding",
+     "tags": {"agentic-coding", "patterns", "workflow", "workflows", "vibe-coding",
+              "autonomy", "orchestration", "architecture", "multi-agent"}},
+    {"id": "evals", "title": "Evals &amp; Quality",
+     "tags": {"evals", "testing", "code-quality", "quality", "production",
+              "safeguards", "ai-readiness"}},
+    {"id": "sdd", "title": "Spec-Driven Dev",
+     "tags": {"sdd", "spec-driven-development", "spec-driven", "planning"}},
+]
+CURATED_TYPES = {'concept', 'paper', 'tool', 'mental-model', 'note'}
+TYPE_ORDER = {'concept': 0, 'paper': 1, 'tool': 2, 'mental-model': 3, 'note': 4}
+
 
 def slugify(name):
     """Convert a page name to a URL slug."""
@@ -460,20 +476,6 @@ def build_backlinks_page(slug, title, backlinks, all_categories):
 
 def build_main_page(articles, all_categories):
     """Build the main/index page."""
-    TOPIC_PORTALS = [
-        {"id": "context-engineering", "title": "Context Engineering",
-         "tags": {"context-engineering", "context-windows", "memory", "prompting", "rag"}},
-        {"id": "agentic-coding", "title": "Agentic Coding",
-         "tags": {"agentic-coding", "patterns", "workflow", "workflows", "vibe-coding",
-                  "autonomy", "orchestration", "architecture", "multi-agent"}},
-        {"id": "evals", "title": "Evals &amp; Quality",
-         "tags": {"evals", "testing", "code-quality", "quality", "production",
-                  "safeguards", "ai-readiness"}},
-        {"id": "sdd", "title": "Spec-Driven Dev",
-         "tags": {"sdd", "spec-driven-development", "spec-driven", "planning"}},
-    ]
-    CURATED_TYPES = {'concept', 'paper', 'tool', 'mental-model', 'note'}
-    TYPE_ORDER = {'concept': 0, 'paper': 1, 'tool': 2, 'mental-model': 3, 'note': 4}
     SHOW_N = 4
 
     def portal_articles(portal):
@@ -493,11 +495,11 @@ def build_main_page(articles, all_categories):
             f'<li><a href="{BASE_PATH}/articles/{a["slug"]}.html">{a["title"]}</a></li>'
             for a in show
         )
-        more = (f'<li class="portal-more"><a href="{BASE_PATH}/categories/{portal["id"]}.html">'
+        more = (f'<li class="portal-more"><a href="{BASE_PATH}/topics/{portal["id"]}.html">'
                 f'{remainder} more &rarr;</a></li>') if remainder > 0 else ''
         empty = '<li><em>No articles tagged yet.</em></li>' if not show else ''
         return (f'<div class="portal-box">'
-                f'<h3 class="portal-heading"><a href="{BASE_PATH}/categories/{portal["id"]}.html">{portal["title"]}</a></h3>'
+                f'<h3 class="portal-heading"><a href="{BASE_PATH}/topics/{portal["id"]}.html">{portal["title"]}</a></h3>'
                 f'<ul class="portal-list">{items}{more}{empty}</ul>'
                 f'</div>')
 
@@ -600,6 +602,43 @@ def build_categories_index(all_categories, articles):
 <p class="article-meta">{len(all_categories)} categories.</p>
 <ul class="category-list">{items}</ul>'''
     return page_template("All Categories", content, all_categories)
+
+
+def build_topic_page(portal, articles, all_categories):
+    """Build a topic page listing all articles matching a portal's tag set."""
+    matched = [
+        a for a in articles
+        if a.get('type') in CURATED_TYPES
+        and set(a.get('tags') or []) & portal['tags']
+    ]
+    matched.sort(key=lambda a: (TYPE_ORDER.get(a.get('type'), 9), a['title']))
+
+    # Also collect source articles that match
+    sources = [
+        a for a in articles
+        if a.get('type') == 'source'
+        and set(a.get('tags') or []) & portal['tags']
+    ]
+    sources.sort(key=lambda a: a['title'])
+
+    def render_list(items):
+        return ''.join(
+            f'<li><a href="{BASE_PATH}/articles/{a["slug"]}.html">{a["title"]}</a>'
+            f' <span class="article-type-badge">{a.get("type","")}</span></li>'
+            for a in items
+        )
+
+    curated_section = f'<ul class="category-list">{render_list(matched)}</ul>' if matched else '<p>No articles yet.</p>'
+    source_section = (f'<h2>Source Articles ({len(sources)})</h2>'
+                      f'<ul class="category-list">{render_list(sources)}</ul>') if sources else ''
+
+    content = (f'<h1>Topic: {portal["title"]}</h1>'
+               f'<p class="article-meta"><a href="{BASE_PATH}/">← Main Page</a></p>'
+               f'<p class="article-meta">{len(matched)} curated articles · {len(sources)} source articles</p>'
+               f'{curated_section}'
+               f'{source_section}')
+
+    return page_template(f'Topic: {portal["title"]}', content, all_categories)
 
 
 def build_articles_index(articles, all_categories):
@@ -785,6 +824,7 @@ def main():
     (DIST_PATH / "articles").mkdir(parents=True, exist_ok=True)
     (DIST_PATH / "categories").mkdir(parents=True, exist_ok=True)
     (DIST_PATH / "backlinks").mkdir(parents=True, exist_ok=True)
+    (DIST_PATH / "topics").mkdir(parents=True, exist_ok=True)
     (DIST_PATH / "static" / "css").mkdir(parents=True, exist_ok=True)
     (DIST_PATH / "static" / "js").mkdir(parents=True, exist_ok=True)
 
@@ -845,6 +885,11 @@ def main():
     # Build main page
     main_html = build_main_page(articles, all_categories)
     (DIST_PATH / "index.html").write_text(main_html, encoding='utf-8')
+
+    # Build topic pages
+    for portal in TOPIC_PORTALS:
+        topic_html = build_topic_page(portal, articles, all_categories)
+        (DIST_PATH / "topics" / f"{portal['id']}.html").write_text(topic_html, encoding='utf-8')
 
     # Build category pages
     for cat in all_categories:
