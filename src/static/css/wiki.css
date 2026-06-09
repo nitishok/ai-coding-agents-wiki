@@ -21,6 +21,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   font-family: var(--font-body);
   font-size: 14px;
@@ -254,6 +259,9 @@ a.redlink:visited {
 .wiki-content table {
   border-collapse: collapse;
   margin: 10px 0;
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
 }
 
 .wiki-content th, .wiki-content td {
@@ -663,6 +671,42 @@ a.redlink:visited {
   }
   .source-list {
     columns: 1;
+  }
+  .wiki-header {
+    padding: 6px 12px;
+    gap: 8px;
+  }
+  .wiki-header-left .site-title {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+  .search-box input {
+    width: 120px;
+  }
+  .search-box button {
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+  .wiki-content h1 {
+    font-size: 22px;
+  }
+  .wiki-content h2 {
+    font-size: 18px;
+  }
+  .infobox {
+    float: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 16px 0;
+  }
+  .toc {
+    float: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 16px 0;
   }
 }
 
